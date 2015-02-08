@@ -1,0 +1,58 @@
+---
+
+# sensu repo and package installed by client role
+
+ - apt:
+    name: uchiwa
+
+ - name: Template sensu redis conf
+   template:
+     src: sensu_redis.json
+     dest: /etc/sensu/conf.d/redis.json
+
+ - name: Template sensu api conf
+   template:
+     src: sensu_api.json
+     dest: /etc/sensu/conf.d/api.json
+   notify: restart sensu
+
+ - name: Template dashboard (uchiwa) conf
+   template:
+     src: sensu_dashboard.json
+     dest: /etc/sensu/uchiwa.json
+     owner: uchiwa
+   notify: restart sensu
+
+ - name: Template check definitions
+   template:
+     src: sensu_check.json
+     dest: /etc/sensu/conf.d/check_{{item.name}}.json
+   with_items:
+     - name: ping_google
+       command: "/usr/bin/ruby1.9.1 /etc/sensu/plugins/ping/check-ping.rb -h 8.8.8.8"
+       interval: 60
+       subscribers:
+         - clients
+
+     - name: ping_local_gateway
+       command: "/usr/bin/ruby1.9.1 /etc/sensu/plugins/ping/check-ping.rb -h {{ansible_default_ipv4.gateway}}"
+       interval: 60
+       subscribers:
+         - clients
+
+     - name: resolve_google
+       command: "/usr/bin/ruby1.9.1 /etc/sensu/plugins/dns/check-dns.rb -d google.com"
+       interval: 60
+       subscribers:
+         - clients
+
+
+ - name: Enable sensu and related services
+   service:
+     name: "{{item}}"
+     state: started
+     enabled: yes
+   with_items:
+     - "sensu-server"
+     - "sensu-api"
+     - "uchiwa"

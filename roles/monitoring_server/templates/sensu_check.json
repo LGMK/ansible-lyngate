@@ -1,0 +1,10 @@
+{
+  "checks": {
+    "{{item.name}}_check": {
+      "handlers": {{item.handlers|default(['default'])|to_json}},
+      "command": "{{item.command}}",
+      "interval": {{item.interval}},
+      "subscribers": {{item.subscribers|to_json}}
+    }
+  }
+}

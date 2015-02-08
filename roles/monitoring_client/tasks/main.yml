@@ -1,0 +1,53 @@
+---
+# tasks file for monitoring_client
+ - apt_key:
+     url: 'http://repos.sensuapp.org/apt/pubkey.gpg'
+
+ - apt_repository:
+     repo: 'deb http://repos.sensuapp.org/apt sensu main'
+
+ - apt:
+     update_cache: yes
+     name: "{{item}}"
+   with_items:
+     - ruby
+     - ruby-dev
+     - sensu
+     - git
+     - vim
+
+ - name: install sensu plugin gems
+   gem:
+     name: "{{item}}"
+     user_install: no
+   with_items:
+     - sensu-plugin
+     - net-ping
+
+ - name: clone sensu community plugins
+   git:
+     repo: "https://github.com/sensu/sensu-community-plugins"
+     dest: /root/sensu-community-plugins
+
+ - name: Copy sensu plugins to /etc/sensu/plugins
+   shell: "cp -vr /root/sensu-community-plugins/plugins/* /etc/sensu/plugins"
+
+ - name: Make sensu plugins executable
+   shell: chmod -R +x /etc/sensu/plugins
+
+ - name: Template sensu rabbitmq conf
+   template:
+     src: sensu_rabbitmq.json
+     dest: /etc/sensu/conf.d/rabbitmq.json
+
+ - name: Template sensu client conf
+   template:
+     src: sensu_client.json
+     dest: /etc/sensu/conf.d/client.json
+
+
+
+ - service:
+     name: "sensu-client"
+     state: started
+     enabled: yes
