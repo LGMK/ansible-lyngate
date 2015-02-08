@@ -121,6 +121,11 @@ galaxy_info:
   #- system
   #- web
 dependencies:
+  - role: f500.ufw_rules
+    ufw_rules_allow_ports:
+      - 22
+      - 3000
+  - role: f500.ufw
   - role: alexeymedvedchikov.rabbitmq
     rabbitmq_create_cluster: no
     rabbitmq_vhosts:
