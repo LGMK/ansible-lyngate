@@ -1,0 +1,11 @@
+---
+ - name: template upstart job
+   template:
+     src: job
+     dest: "/etc/init/{{job_name}}.conf"
+
+ - name: ensure job enabled and started
+   service:
+     name: "{{job_name}}"
+     enabled: yes
+     state: started

@@ -1,0 +1,6 @@
+---
+# defaults file for persistent_ssh
+
+job_name: persistent_ssh
+ssh_options: []
+ssh_connection_string: localhost

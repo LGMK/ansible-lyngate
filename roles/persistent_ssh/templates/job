@@ -1,0 +1,12 @@
+# persistent_ssh
+
+description     "OpenSSH Tunnel {{job_name}}"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+respawn
+respawn limit 10 5
+umask 022
+
+exec /usr/bin/ssh -N {{ssh_connection_string}} {% for opt in ssh_options %} {{opt}} {% endfor %}
