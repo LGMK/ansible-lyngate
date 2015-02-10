@@ -6,4 +6,6 @@ probe
 status.storrier.net ansible_ssh_host=95.138.190.151 ansible_ssh_user=root
 
 [probe]
+
+[disabled]
 lyngate.storrier.net

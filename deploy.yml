@@ -1,0 +1,59 @@
+---
+- hosts: server
+  roles:
+
+  - role: f500.ufw_rules
+    ufw_rules_allow_ports:
+      - 22
+      - 3000
+
+  - role: f500.ufw
+
+  - role: alexeymedvedchikov.rabbitmq
+    rabbitmq_create_cluster: no
+    rabbitmq_vhosts:
+      - /sensu
+    rabbitmq_users:
+    - user: admin
+      password: admin
+      vhost: /
+      configure_priv: .*
+      read_priv: .*
+      write_priv: .*
+      tags: administrator
+    - user: sensu
+      password: sensu
+      vhost: /sensu
+      configure_priv: .*
+      read_priv: .*
+      write_priv: .*
+      tags: sensu
+
+  - role: DavidWittman.redis
+    redis_bind: 127.0.0.1
+
+# This should be all
+- hosts: all
+  roles:
+  - role: monitoring_client
+    tags: client
+
+- hosts: probe
+  roles:
+  - role: persistent_ssh
+    job_name: ssh_client_rabbit_access
+    ssh_connection_string: localhost
+    ssh_options:
+      - "-i /root/.ssh/id_rsa_test"
+      - "-L7777:localhost:5672"
+
+  - role: persistent_ssh
+    job_name: ssh_client_ssh_remote
+    ssh_connection_string: localhost
+    ssh_options:
+      - "-i /root/.ssh/id_rsa_test"
+      - "-R2222:localhost:22"
+
+- hosts: server
+  roles:
+  - role: monitoring_server
